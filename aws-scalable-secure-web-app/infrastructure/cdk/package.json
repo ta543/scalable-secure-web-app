@@ -1,0 +1,21 @@
+{
+  "name": "aws-scalable-secure-web-app-cdk",
+  "version": "0.1.0",
+  "bin": {
+    "cdk-app": "bin/cdk-app.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "aws-cdk": "latest",
+    "ts-node": "latest",
+    "@types/node": "latest",
+    "typescript": "latest"
+  },
+  "dependencies": {
+    "@aws-cdk/core": "latest"
+  }
+}

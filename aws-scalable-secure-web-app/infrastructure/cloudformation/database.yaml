@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Database setup for the AWS Scalable Secure Web App.
+
+Resources:
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnets available for the RDS DB Instance
+      SubnetIds:
+        - subnet-1234567890abcdef0
+        - subnet-abcdef1234567890
+      DBSubnetGroupName: ScalableSecureWebApp-DBSubnetGroup
+
+  MyDBInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceClass: db.t3.micro
+      AllocatedStorage: 20
+      DBName: MyDatabase
+      Engine: mysql
+      MasterUsername: adminuser
+      MasterUserPassword: 123
+      DBSubnetGroupName:
+        Ref: DBSubnetGroup
+      VPCSecurityGroups:
+        - sg-12345678
+      MultiAZ: true
+      BackupRetentionPeriod: 7
+      Tags:
+        - Key: Name
+          Value: MyDBInstance

@@ -1,0 +1,74 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Application server setup for the AWS Scalable Secure Web App.
+
+Resources:
+  EC2InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow http to client host
+      VpcId: vpc-01a2b3c4d5e6f7g8h
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
+
+  LaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: ami-0123456789abcdef0
+      InstanceType: t2.micro
+      KeyName: MyEC2KeyPair
+      SecurityGroups:
+        - Ref: EC2InstanceSecurityGroup
+
+  AutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AvailabilityZones:
+        - us-east-1a
+      LaunchConfigurationName:
+        Ref: LaunchConfiguration
+      MinSize: '1'
+      MaxSize: '3'
+      TargetGroupARNs:
+        - Ref: ELBTargetGroup
+      VPCZoneIdentifier:
+        - subnet-0a1b2c3d4e5f67890
+      Tags:
+        - Key: Name
+          Value: ScalableWebAppServer
+          PropagateAtLaunch: 'true'
+
+  ELB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: WebAppELB
+      Subnets:
+        - subnet-0a1b2c3d4e5f67890
+      SecurityGroups:
+        - Ref: EC2InstanceSecurityGroup
+
+  ELBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn:
+            Ref: ELBTargetGroup
+      LoadBalancerArn:
+        Ref: ELB
+      Port: '80'
+      Protocol: HTTP
+
+  ELBTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Port: 80
+      Protocol: HTTP
+      VpcId: vpc-01a2b3c4d5e6f7g8h
